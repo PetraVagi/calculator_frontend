@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { deviceSizes } from "../utils";
 
@@ -60,7 +60,23 @@ export default function Calculator() {
 	const [valueToDisplay, setValueToDisplay] = useState<string>("");
 	const [restart, setRestart] = useState<boolean>(false);
 
-	function onInput(input: string) {
+	const handleKeyDown = useCallback(
+		(event: KeyboardEvent) => {
+			const { key } = event;
+			if ((Number(key) >= 0 && Number(key) <= 9) || operations.includes(key)) handleInput(key);
+			if (key === "Enter") handleEval();
+		},
+		[valueToDisplay],
+	);
+
+	useEffect(() => {
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [handleKeyDown]);
+
+	function handleInput(input: string) {
 		if (restart) {
 			setValueToDisplay(input);
 			setRestart(false);
@@ -69,7 +85,7 @@ export default function Calculator() {
 		}
 	}
 
-	function onEval() {
+	function handleEval() {
 		// TODO call backend function
 		setRestart(true);
 		setValueToDisplay(eval(valueToDisplay));
@@ -81,16 +97,16 @@ export default function Calculator() {
 			<InputArea>
 				<Numbers>
 					{numbers.map((num: number, i: number) => (
-						<Input key={`number_${i}`} onClick={() => onInput(num.toString())}>
+						<Input key={`number_${i}`} onClick={() => handleInput(num.toString())}>
 							{num}
 						</Input>
 					))}
-					<Input onClick={() => onInput(".")}>.</Input>
-					<Input onClick={onEval}>=</Input>
+					<Input onClick={() => handleInput(".")}>.</Input>
+					<Input onClick={handleEval}>=</Input>
 				</Numbers>
 				<Operations>
 					{operations.map((op: string, i: number) => (
-						<Input key={`op_${i}`} onClick={() => onInput(` ${op} `)}>
+						<Input key={`op_${i}`} onClick={() => handleInput(op)}>
 							{op}
 						</Input>
 					))}
