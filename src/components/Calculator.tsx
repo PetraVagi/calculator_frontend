@@ -145,12 +145,13 @@ export default function Calculator() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ expression: valueToDisplay }),
 			});
-			const parsedResponse = await response.json();
-			console.log(parsedResponse);
-
-			// TODO handle errors
-
-			setValueToDisplay(eval(valueToDisplay).toString());
+			const { result, error } = await response.json();
+			if (error) {
+				console.log(error);
+				alert(error);
+			} else {
+				setValueToDisplay(result.toString());
+			}
 		}
 	}
 
