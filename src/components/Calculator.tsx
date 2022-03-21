@@ -56,6 +56,14 @@ const Input = styled.div`
 const numbers = Array.from(Array(10).keys()).reverse();
 const operations = ["+", "-", "x", "/"];
 
+function isNumber(char: string) {
+	return numbers.includes(Number(char));
+}
+
+function isOperation(char: string) {
+	return operations.includes(char);
+}
+
 export default function Calculator() {
 	const [valueToDisplay, setValueToDisplay] = useState<string>("");
 	const [restart, setRestart] = useState<boolean>(true);
@@ -63,7 +71,7 @@ export default function Calculator() {
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
 			const { key } = event;
-			if ((Number(key) >= 0 && Number(key) <= 9) || operations.includes(key) || key === ".") handleInput(key);
+			if (isNumber(key) || isOperation(key) || key === ".") handleInput(key);
 			if (key === "Enter") handleEval();
 		},
 		[valueToDisplay],
@@ -80,7 +88,7 @@ export default function Calculator() {
 		if (restart) {
 			setRestart(false);
 
-			if (operations.includes(input)) {
+			if (isOperation(input)) {
 				setValueToDisplay(`${valueToDisplay}${input}`);
 			} else if (input === ".") {
 				setValueToDisplay("0.");
@@ -89,20 +97,20 @@ export default function Calculator() {
 			}
 		} else {
 			const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
-			if (operations.includes(input)) {
-				if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
+			if (isOperation(input)) {
+				if (isOperation(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
 					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
 					return;
 				}
 			} else if (input === ".") {
-				if (operations.includes(lastCharInDisplayedValue)) {
+				if (isOperation(lastCharInDisplayedValue)) {
 					setValueToDisplay(`${valueToDisplay}0.`);
 					return;
 				}
-			} else if (Number(input) >= 0 && Number(input) <= 9) {
+			} else if (isNumber(input)) {
 				if (lastCharInDisplayedValue === "0") {
 					const charBeforeZero = valueToDisplay.charAt(valueToDisplay.length - 2);
-					if (charBeforeZero === "" || operations.includes(charBeforeZero)) {
+					if (charBeforeZero === "" || isOperation(charBeforeZero)) {
 						setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
 						return;
 					}
@@ -115,7 +123,7 @@ export default function Calculator() {
 	function checkOperations() {
 		// If the last character is the operation and there is no second number, we will stop the evaluation
 		const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
-		if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
+		if (isOperation(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
 			return false;
 		}
 
@@ -127,10 +135,21 @@ export default function Calculator() {
 		return operations.some((v) => valueToDisplay.includes(v));
 	}
 
-	function handleEval() {
+	async function handleEval() {
+		// We can prevent unnecessary backend calls with the checkOpreations function
 		if (checkOperations()) {
 			setRestart(true);
-			// TODO call backend function
+
+			const response = await fetch("/eval", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ expression: valueToDisplay }),
+			});
+			const parsedResponse = await response.json();
+			console.log(parsedResponse);
+
+			// TODO handle errors
+
 			setValueToDisplay(eval(valueToDisplay).toString());
 		}
 	}

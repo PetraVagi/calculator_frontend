@@ -8,11 +8,6 @@ const CalculatorWrapper = styled.div`
 `;
 
 function App() {
-	async function apiTest() {
-		const response = await fetch("/test");
-		const parsedResponse = await response.json();
-	}
-
 	return (
 		<CalculatorWrapper>
 			<Calculator />
