@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { deviceSizes } from "../utils";
 
@@ -15,7 +16,13 @@ const MainContainer = styled.div`
 `;
 
 const ResultDisplay = styled.div`
-	height: 35%;
+	height: 30%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-end;
+	padding: 20px;
+	font-size: 1.6rem;
+	font-weight: 550;
 `;
 
 const InputArea = styled.div`
@@ -46,25 +53,47 @@ const Input = styled.div`
 	font-weight: bold;
 `;
 
+const numbers = Array.from(Array(10).keys()).reverse();
+const operations = ["+", "-", "x", "/"];
+
 export default function Calculator() {
-	const numbers = Array.from(Array(10).keys()).reverse();
+	const [valueToDisplay, setValueToDisplay] = useState<string>("");
+	const [restart, setRestart] = useState<boolean>(false);
+
+	function onInput(input: string) {
+		if (restart) {
+			setValueToDisplay(input);
+			setRestart(false);
+		} else {
+			setValueToDisplay(`${valueToDisplay}${input}`);
+		}
+	}
+
+	function onEval() {
+		// TODO call backend function
+		setRestart(true);
+		setValueToDisplay(eval(valueToDisplay));
+	}
 
 	return (
 		<MainContainer>
-			<ResultDisplay />
+			<ResultDisplay>{valueToDisplay}</ResultDisplay>
 			<InputArea>
 				<Numbers>
 					{numbers.map((num: number, i: number) => (
-						<Input key={`number_${i}`}>{num}</Input>
+						<Input key={`number_${i}`} onClick={() => onInput(num.toString())}>
+							{num}
+						</Input>
 					))}
-					<Input>,</Input>
-					<Input>=</Input>
+					<Input onClick={() => onInput(".")}>.</Input>
+					<Input onClick={onEval}>=</Input>
 				</Numbers>
 				<Operations>
-					<Input>+</Input>
-					<Input>-</Input>
-					<Input>x</Input>
-					<Input>/</Input>
+					{operations.map((op: string, i: number) => (
+						<Input key={`op_${i}`} onClick={() => onInput(` ${op} `)}>
+							{op}
+						</Input>
+					))}
 				</Operations>
 			</InputArea>
 		</MainContainer>
