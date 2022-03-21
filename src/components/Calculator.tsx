@@ -77,8 +77,6 @@ export default function Calculator() {
 	}, [handleKeyDown]);
 
 	function handleInput(input: string) {
-		const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
-
 		if (restart) {
 			setRestart(false);
 
@@ -90,15 +88,27 @@ export default function Calculator() {
 				setValueToDisplay(input);
 			}
 		} else {
+			const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
 			if (operations.includes(input)) {
 				if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
 					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
 				} else {
 					setValueToDisplay(`${valueToDisplay}${input}`);
 				}
-			} else if (input === "." && operations.includes(lastCharInDisplayedValue)) {
-				setValueToDisplay(`${valueToDisplay}0.`);
+			} else if (input === ".") {
+				if (operations.includes(lastCharInDisplayedValue)) {
+					setValueToDisplay(`${valueToDisplay}0.`);
+				} else {
+					setValueToDisplay(`${valueToDisplay}${input}`);
+				}
 			} else {
+				if (lastCharInDisplayedValue === "0") {
+					const charBeforeZero = valueToDisplay.charAt(valueToDisplay.length - 2);
+					if (charBeforeZero === "" || operations.includes(charBeforeZero)) {
+						setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
+						return;
+					}
+				}
 				setValueToDisplay(`${valueToDisplay}${input}`);
 			}
 		}
