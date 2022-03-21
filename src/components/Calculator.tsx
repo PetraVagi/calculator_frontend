@@ -58,12 +58,12 @@ const operations = ["+", "-", "x", "/"];
 
 export default function Calculator() {
 	const [valueToDisplay, setValueToDisplay] = useState<string>("");
-	const [restart, setRestart] = useState<boolean>(false);
+	const [restart, setRestart] = useState<boolean>(true);
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
 			const { key } = event;
-			if ((Number(key) >= 0 && Number(key) <= 9) || operations.includes(key)) handleInput(key);
+			if ((Number(key) >= 0 && Number(key) <= 9) || operations.includes(key) || key === ".") handleInput(key);
 			if (key === "Enter") handleEval();
 		},
 		[valueToDisplay],
@@ -77,18 +77,37 @@ export default function Calculator() {
 	}, [handleKeyDown]);
 
 	function handleInput(input: string) {
+		const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
+
 		if (restart) {
-			setValueToDisplay(input);
 			setRestart(false);
+
+			if (operations.includes(input)) {
+				setValueToDisplay(`${valueToDisplay}${input}`);
+			} else if (input === ".") {
+				setValueToDisplay("0.");
+			} else {
+				setValueToDisplay(input);
+			}
 		} else {
-			setValueToDisplay(`${valueToDisplay}${input}`);
+			if (operations.includes(input)) {
+				if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
+					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
+				} else {
+					setValueToDisplay(`${valueToDisplay}${input}`);
+				}
+			} else if (input === "." && operations.includes(lastCharInDisplayedValue)) {
+				setValueToDisplay(`${valueToDisplay}0.`);
+			} else {
+				setValueToDisplay(`${valueToDisplay}${input}`);
+			}
 		}
 	}
 
 	function handleEval() {
 		// TODO call backend function
 		setRestart(true);
-		setValueToDisplay(eval(valueToDisplay));
+		setValueToDisplay(eval(valueToDisplay).toString());
 	}
 
 	return (
