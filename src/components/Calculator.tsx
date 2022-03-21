@@ -113,6 +113,12 @@ export default function Calculator() {
 	}
 
 	function checkOperations() {
+		// If the last character is the operation and there is no second number, we will stop the evaluation
+		const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
+		if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
+			return false;
+		}
+
 		// Evaluation only runs if there are operations to calculate with in the valueToDisplay expression
 		const firstCharInDisplayedValue = valueToDisplay.charAt(0);
 		if (firstCharInDisplayedValue === "-") {
