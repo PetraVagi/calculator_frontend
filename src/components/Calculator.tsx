@@ -104,10 +104,21 @@ export default function Calculator() {
 		}
 	}
 
+	function checkOperations() {
+		const firstCharInDisplayedValue = valueToDisplay.charAt(0);
+		if (firstCharInDisplayedValue === "-") {
+			return operations.some((v) => valueToDisplay.substring(1, valueToDisplay.length).includes(v));
+		}
+		return operations.some((v) => valueToDisplay.includes(v));
+	}
+
 	function handleEval() {
-		// TODO call backend function
-		setRestart(true);
-		setValueToDisplay(eval(valueToDisplay).toString());
+		// Evaluation only runs if there are operations to calculate with in the valueToDisplay expression
+		if (checkOperations()) {
+			setRestart(true);
+			// TODO call backend function
+			setValueToDisplay(eval(valueToDisplay).toString());
+		}
 	}
 
 	return (
