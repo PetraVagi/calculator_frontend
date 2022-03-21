@@ -92,16 +92,14 @@ export default function Calculator() {
 			if (operations.includes(input)) {
 				if (operations.includes(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
 					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
-				} else {
-					setValueToDisplay(`${valueToDisplay}${input}`);
+					return;
 				}
 			} else if (input === ".") {
 				if (operations.includes(lastCharInDisplayedValue)) {
 					setValueToDisplay(`${valueToDisplay}0.`);
-				} else {
-					setValueToDisplay(`${valueToDisplay}${input}`);
+					return;
 				}
-			} else {
+			} else if (Number(input) >= 0 && Number(input) <= 9) {
 				if (lastCharInDisplayedValue === "0") {
 					const charBeforeZero = valueToDisplay.charAt(valueToDisplay.length - 2);
 					if (charBeforeZero === "" || operations.includes(charBeforeZero)) {
@@ -109,12 +107,13 @@ export default function Calculator() {
 						return;
 					}
 				}
-				setValueToDisplay(`${valueToDisplay}${input}`);
 			}
+			setValueToDisplay(`${valueToDisplay}${input}`);
 		}
 	}
 
 	function checkOperations() {
+		// Evaluation only runs if there are operations to calculate with in the valueToDisplay expression
 		const firstCharInDisplayedValue = valueToDisplay.charAt(0);
 		if (firstCharInDisplayedValue === "-") {
 			return operations.some((v) => valueToDisplay.substring(1, valueToDisplay.length).includes(v));
@@ -123,7 +122,6 @@ export default function Calculator() {
 	}
 
 	function handleEval() {
-		// Evaluation only runs if there are operations to calculate with in the valueToDisplay expression
 		if (checkOperations()) {
 			setRestart(true);
 			// TODO call backend function
