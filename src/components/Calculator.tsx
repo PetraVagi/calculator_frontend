@@ -99,7 +99,7 @@ export default function Calculator() {
 			setRestart(false);
 
 			if (isOperation(input)) {
-				if (valueToDisplay.includes(".")) {
+				if (valueToDisplay.includes(".") || valueToDisplay.includes("-")) {
 					setValueToDisplay(`0${input}`);
 				} else {
 					setValueToDisplay(`${valueToDisplay}${input}`);
@@ -112,6 +112,9 @@ export default function Calculator() {
 			if (isOperation(input)) {
 				if (isOperation(lastCharInDisplayedValue)) {
 					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
+					return;
+				} else if (valueToDisplay === "") {
+					setValueToDisplay(`0${input}`);
 					return;
 				}
 			} else if (isNumber(input)) {
