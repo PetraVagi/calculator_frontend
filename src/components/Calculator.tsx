@@ -17,12 +17,16 @@ const MainContainer = styled.div`
 
 const ResultDisplay = styled.div`
 	height: 30%;
+	max-width: calc(100% - 40px);
 	display: flex;
 	align-items: flex-end;
-	justify-content: flex-end;
+	min-width: 0;
+	min-height: 0;
+	overflow: scroll;
 	padding: 20px;
-	font-size: 1.6rem;
+	font-size: 1.4rem;
 	font-weight: 550;
+	margin-left: auto;
 `;
 
 const InputArea = styled.div`
@@ -51,6 +55,7 @@ const Input = styled.div`
 	justify-content: center;
 	font-size: 2rem;
 	font-weight: bold;
+	cursor: pointer;
 `;
 
 const numbers = Array.from(Array(10).keys()).reverse();
