@@ -76,7 +76,7 @@ export default function Calculator() {
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
 			const { key } = event;
-			if (isNumber(key) || isOperation(key) || key === ".") handleInput(key);
+			if (isNumber(key) || isOperation(key) || key === "Backspace") handleInput(key);
 			if (key === "Enter") handleEval();
 		},
 		[valueToDisplay],
@@ -90,26 +90,28 @@ export default function Calculator() {
 	}, [handleKeyDown]);
 
 	function handleInput(input: string) {
+		if (["DEL", "Backspace"].includes(input)) {
+			setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}`);
+			return;
+		}
+
 		if (restart) {
 			setRestart(false);
 
 			if (isOperation(input)) {
-				setValueToDisplay(`${valueToDisplay}${input}`);
-			} else if (input === ".") {
-				setValueToDisplay("0.");
+				if (valueToDisplay.includes(".")) {
+					setValueToDisplay(`0${input}`);
+				} else {
+					setValueToDisplay(`${valueToDisplay}${input}`);
+				}
 			} else {
 				setValueToDisplay(input);
 			}
 		} else {
 			const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
 			if (isOperation(input)) {
-				if (isOperation(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
-					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
-					return;
-				}
-			} else if (input === ".") {
 				if (isOperation(lastCharInDisplayedValue)) {
-					setValueToDisplay(`${valueToDisplay}0.`);
+					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
 					return;
 				}
 			} else if (isNumber(input)) {
@@ -128,7 +130,7 @@ export default function Calculator() {
 	function checkOperations() {
 		// If the last character is the operation and there is no second number, we will stop the evaluation
 		const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
-		if (isOperation(lastCharInDisplayedValue) || lastCharInDisplayedValue === ".") {
+		if (isOperation(lastCharInDisplayedValue)) {
 			return false;
 		}
 
@@ -170,7 +172,9 @@ export default function Calculator() {
 							{num}
 						</Input>
 					))}
-					<Input onClick={() => handleInput(".")}>.</Input>
+					<Input style={{ fontSize: "1.5rem" }} onClick={() => handleInput("DEL")}>
+						DEL
+					</Input>
 					<Input onClick={handleEval}>=</Input>
 				</Numbers>
 				<Operations>
