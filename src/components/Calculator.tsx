@@ -95,6 +95,8 @@ export default function Calculator() {
 			return;
 		}
 
+		if (!isOperation(input) && !isNumber(input)) return;
+
 		if (restart) {
 			setRestart(false);
 
