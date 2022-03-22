@@ -89,7 +89,7 @@ export default function Calculator() {
 		};
 	}, [handleKeyDown]);
 
-	function handleInput(input: string) {
+	async function handleInput(input: string) {
 		if (["DEL", "Backspace"].includes(input)) {
 			setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}`);
 			return;
@@ -110,6 +110,12 @@ export default function Calculator() {
 		} else {
 			const lastCharInDisplayedValue = valueToDisplay.charAt(valueToDisplay.length - 1);
 			if (isOperation(input)) {
+				if (operations.some((o) => valueToDisplay.includes(o))) {
+					const previousResult = await handleEval();
+					setRestart(false);
+					setValueToDisplay(`${previousResult}${input}`);
+					return;
+				}
 				if (isOperation(lastCharInDisplayedValue)) {
 					setValueToDisplay(`${valueToDisplay.substring(0, valueToDisplay.length - 1)}${input}`);
 					return;
@@ -140,9 +146,9 @@ export default function Calculator() {
 		// Evaluation only runs if there are operations to calculate with in the valueToDisplay expression
 		const firstCharInDisplayedValue = valueToDisplay.charAt(0);
 		if (firstCharInDisplayedValue === "-") {
-			return operations.some((v) => valueToDisplay.substring(1, valueToDisplay.length).includes(v));
+			return operations.some((o) => valueToDisplay.substring(1, valueToDisplay.length).includes(o));
 		}
-		return operations.some((v) => valueToDisplay.includes(v));
+		return operations.some((o) => valueToDisplay.includes(o));
 	}
 
 	async function handleEval() {
@@ -161,6 +167,7 @@ export default function Calculator() {
 				alert(error);
 			} else {
 				setValueToDisplay(result.toString());
+				return result.toString();
 			}
 		}
 	}
